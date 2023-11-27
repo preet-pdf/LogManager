@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <h2>Search Data</h2>
+  <form id="searchForm">
+    <div class="form-group">
+      <label for="level">Level:</label>
+      <input type="text" class="form-control" id="level" placeholder="Enter Log level" name="level">
+    </div>
+    <div class="form-group">
+      <label for="message">Message:</label>
+      <input type="text" class="form-control" id="message" placeholder="Enter Message" name="message">
+    </div>
+    <div class="form-group">
+      <label for="resourceId">Resource Id:</label>
+      <input type="text" class="form-control" id="resourceId" placeholder="Enter Resource Id" name="resourceId">
+    </div>
+    <div class="form-group">
+      <label for="timestamp-start">TimeStamp Start:</label>
+      <input type="text" class="form-control" id="timestamp_start" placeholder="Enter Start TimeStamp" name="timestamp_from">
+    </div>
+    <div class="form-group">
+      <label for="timestamp-end">TimeStamp End:</label>
+      <input type="text" class="form-control" id="timestamp_end" placeholder="Enter End TimeStamp" name="timestamp_to">
+    </div>
+    <div class="form-group">
+      <label for="traceId">Trace Id:</label>
+      <input type="text" class="form-control" id="traceId" placeholder="Enter Trace Id" name="traceId">
+    </div>
+    <div class="form-group">
+      <label for="spanId">Space Id:</label>
+      <input type="text" class="form-control" id="spanId" placeholder="Enter Space Id" name="spanId">
+    </div>
+    <div class="form-group">
+      <label for="commit">Commit:</label>
+      <input type="text" class="form-control" id="commit" placeholder="Enter Commit" name="commit">
+    </div>
+    <div class="form-group">
+      <label for="parentResourceId">Parent Resource Id:</label>
+      <input type="text" class="form-control" id="parentResourceId" placeholder="Enter Parent Resource Id" name="parentResourceId">
+    </div>
+    <div class="form-group">
+      <label for="full_text">Enter Full Text:</label>
+      <input type="text" class="form-control" id="parentResourceId" placeholder="*resourceId*" name="full_text">
+    </div>
+    <button type="button" class="btn btn-default" onclick="submitForm()">Submit</button>
+  </form>
+
+  <div id="results">
+  </div>
+</div>
+
+<script>
+  function submitForm() {
+    var formData = {};
+
+    $('#searchForm input').each(function() {
+      var field = $(this);
+      var fieldName = field.attr('name');
+      var fieldValue = field.val();
+
+      if (fieldValue.trim() !== '') {
+        formData[fieldName] = fieldValue;
+      }
+    });
+
+    var queryParams = $.param(formData);
+
+    var url = 'http://localhost:4000/search/?' + queryParams;
+
+    $.ajax({
+      type: 'GET',
+      url: url,
+      dataType: 'json',
+      success: function(response) {
+        // Log the response to the console
+        console.log('Response:', response);
+
+        // Display the results on the page
+        displayResults(response);
+      },
+      error: function(xhr, status, error) {
+        // Log any errors that occur
+        console.error("AJAX request failed with status:", status);
+        console.error("Error message:", error);
+      }
+    });
+  }
+
+  function displayResults(results) {
+    var resultsContainer = $('#results');
+    resultsContainer.empty(); // Clear previous results
+
+    // Check if results are not empty
+    if (results && results.length > 0) {
+      // Create a single scrollable div for all results
+      var scrollableDiv = $('<div style="max-height: 300px; overflow-y: auto;"></div>');
+
+      // Display each result in the scrollable div
+      results.forEach(function(result) {
+        var resultString = formatResult(result);
+        scrollableDiv.append('<pre>' + resultString + '</pre>');
+      });
+
+      // Append the scrollable div to the results container
+      resultsContainer.append(scrollableDiv);
+    } else {
+      // Display a message when there are no results
+      resultsContainer.append('<p>No results found.</p>');
+    }
+  }
+
+  function formatResult(result) {
+    // Format each result as a JSON string with indentation
+    return JSON.stringify(result, null, 2);
+  }
+</script>
+
+
+</body>
+</html>
